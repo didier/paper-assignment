@@ -7,14 +7,12 @@ import clsx from 'clsx'
 
 // Components
 import { StarFilledIcon, StarIcon } from '@radix-ui/react-icons'
+import { Button, IconButton, TextField, SegmentedControl } from '@radix-ui/themes'
 
 // State
 import { fontsAtom } from '@/lib/state/fonts'
-import { Button, IconButton, Slider, TextField } from '@radix-ui/themes'
 import { getUserFonts } from '../utils'
-import { startTransition, useState } from 'react'
-
-import { SegmentedControl } from '@radix-ui/themes/dist/cjs/index.js'
+import { useState } from 'react'
 
 export default function FontList() {
 	const remSize = 2.5
