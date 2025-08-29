@@ -3,7 +3,7 @@
 // Utils
 import clsx from 'clsx'
 import { useAtom } from 'jotai'
-import { getWeightDescription } from '../utils/font-sorting'
+import { getWeightDescription, extractWeightFromStyle } from '../utils/font-sorting'
 
 // Components
 import { StarFilledIcon, StarIcon, ChevronRightIcon } from '@radix-ui/react-icons'
@@ -23,13 +23,15 @@ interface FontCardProps {
 
 function PreviewText({ style }: { style?: Font }) {
 	const [preview] = useAtom(previewAtom)
+	
 	return (
 		<span
 			style={{
 				fontSize: `${preview.size}rem`,
 				...(style && {
-					// Use the full font name (postscriptName) for precise weight/style
-					fontFamily: `"${style.postscriptName}", "${style.family}", system-ui, sans-serif`,
+					fontFamily: `"${style.family}", system-ui, sans-serif`,
+					fontWeight: extractWeightFromStyle(style.style).weight,
+					fontStyle: style.style.toLowerCase().includes('italic') ? 'italic' : 'normal',
 				}),
 			}}
 			className="leading-[1em] truncate max-w-full transition-all duration-100 ease-out"
@@ -46,19 +48,39 @@ export default function FontCard({
 	onToggleExpanded,
 	onToggleFavorite,
 }: FontCardProps) {
-	// Always prioritize regular weight for the default preview
-	const regularStyle =
-		fontFamily.styles?.find(
-			s =>
-				s.style.toLowerCase() === 'regular' ||
-				s.style.toLowerCase() === 'normal' ||
-				s.style.toLowerCase().includes('400')
-		) ||
-		fontFamily.styles?.find(
-			s => !s.style.toLowerCase().includes('italic') && !s.style.toLowerCase().includes('oblique')
-		) ||
-		fontFamily.styles?.[0] ||
-		fontFamily
+	// Always use the regular weight for the main preview
+	const regularStyle = (() => {
+		if (!fontFamily.styles || fontFamily.styles.length === 0) {
+			return fontFamily
+		}
+		
+		// Look for exact regular matches first
+		const exactRegular = fontFamily.styles.find(s => {
+			const style = s.style.toLowerCase()
+			return style === 'regular' || style === 'normal' || style === 'book' || style === 'roman'
+		})
+		if (exactRegular) return exactRegular
+		
+		// Look for 400 weight
+		const weight400 = fontFamily.styles.find(s => s.style.toLowerCase().includes('400'))
+		if (weight400) return weight400
+		
+		// Look for any non-italic, non-bold style
+		const normalStyle = fontFamily.styles.find(s => {
+			const style = s.style.toLowerCase()
+			return !style.includes('italic') && 
+				   !style.includes('oblique') &&
+				   !style.includes('bold') &&
+				   !style.includes('light') &&
+				   !style.includes('thin') &&
+				   !style.includes('heavy') &&
+				   !style.includes('black')
+		})
+		if (normalStyle) return normalStyle
+		
+		// Fallback to first style or font itself
+		return fontFamily.styles[0] || fontFamily
+	})()
 
 	return (
 		<div

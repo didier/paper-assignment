@@ -72,11 +72,52 @@ export default function FontList() {
 						const isDragMode = view === 'favorites'
 						const isDragging = dragAndDrop.draggedItem === fontFamily.family
 
+						if (isDragMode) {
+							return (
+								<li
+									key={`${fontFamily.family}-${index}`}
+									className={clsx(
+										'grid group relative transition-all duration-200 ease-out',
+										'cursor-grab active:cursor-grabbing',
+										isDragging && 'opacity-30 z-50'
+									)}
+									draggable={true}
+									onDragStart={(e: React.DragEvent) => {
+										e.dataTransfer.effectAllowed = 'move'
+										e.dataTransfer.setData('text/plain', fontFamily.family)
+										dragAndDrop.handleDragStart(fontFamily.family)
+									}}
+									onDragEnd={dragAndDrop.handleDragEnd}
+									onDragOver={(e: React.DragEvent) => {
+										e.preventDefault()
+										e.dataTransfer.dropEffect = 'move'
+										dragAndDrop.handleDragOver(e, fontFamily.family)
+									}}
+									onDragLeave={dragAndDrop.handleDragLeave}
+									onDrop={dragAndDrop.handleDrop}
+								>
+									{/* Drop indicator line */}
+									{dragAndDrop.dragOverItem === fontFamily.family && !isDragging && (
+										<div className="absolute -top-1 left-0 right-0 h-0.5 bg-teal-500 rounded-full shadow-lg shadow-teal-500/50 z-10" />
+									)}
+									
+									<FontCard
+										fontFamily={fontFamily}
+										isExpanded={expandedFonts.has(fontFamily.family)}
+										isFavorited={fontFamily.favorited ?? false}
+										onToggleExpanded={() => toggleExpanded(fontFamily.family)}
+										onToggleFavorite={() => toggleFavorite(fontFamily.family)}
+									/>
+								</li>
+							)
+						}
+
 						return (
 							<motion.li
+								key={`${fontFamily.family}-${index}`}
 								initial={{ opacity: 0, y: '1rem' }}
 								animate={{
-									opacity: isDragging ? 0.3 : 1,
+									opacity: 1,
 									y: 0,
 									transition: {
 										delay: 0.1 + index * 0.025,
@@ -87,34 +128,8 @@ export default function FontList() {
 								exit={{ opacity: 0, y: '1rem', scale: 0.75 }}
 								layout
 								layoutId={fontFamily.family}
-								key={`${fontFamily.family}-${index}`}
-								className={clsx(
-									'grid group relative transition-all duration-200 ease-out',
-									isDragMode && 'cursor-grab active:cursor-grabbing',
-									isDragging && 'z-50'
-								)}
-								{...(isDragMode && {
-									draggable: true,
-									onDragStart: (e: React.DragEvent) => {
-										e.dataTransfer.effectAllowed = 'move'
-										e.dataTransfer.setData('text/plain', fontFamily.family)
-										dragAndDrop.handleDragStart(fontFamily.family)
-									},
-									onDragEnd: dragAndDrop.handleDragEnd,
-									onDragOver: (e: React.DragEvent) => {
-										e.preventDefault()
-										e.dataTransfer.dropEffect = 'move'
-										dragAndDrop.handleDragOver(e, fontFamily.family)
-									},
-									onDragLeave: dragAndDrop.handleDragLeave,
-									onDrop: dragAndDrop.handleDrop,
-								})}
+								className="grid group relative transition-all duration-200 ease-out"
 							>
-								{/* Drop indicator line */}
-								{dragAndDrop.dragOverItem === fontFamily.family && !isDragging && (
-									<div className="absolute -top-1 left-0 right-0 h-0.5 bg-teal-500 rounded-full shadow-lg shadow-teal-500/50 z-10" />
-								)}
-
 								<FontCard
 									fontFamily={fontFamily}
 									isExpanded={expandedFonts.has(fontFamily.family)}
