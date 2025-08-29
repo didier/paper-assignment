@@ -65,9 +65,7 @@ export default function FontList() {
 
 	// Get sorted favorites based on favorites array order
 	const sortedFavorites = useMemo(() => {
-		return favorites
-			.map(familyName => groupedFonts.find(f => f.family === familyName))
-			.filter(Boolean)
+		return favorites.map(familyName => groupedFonts.find(f => f.family === familyName)).filter(Boolean)
 	}, [groupedFonts, favorites])
 
 	// Use a stable display order during drag

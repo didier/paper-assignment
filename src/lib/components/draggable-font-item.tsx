@@ -54,22 +54,22 @@ export default function DraggableFontItem({
 					delay: index * 0.015,
 				},
 			}}
-				{...(isDragMode && {
-					draggable: true,
-					onDragStart,
-					onDragEnd,
-					onDragOver,
-					onDragLeave,
-					onDrop,
-				})}
-			>
-				<FontCard
-					fontFamily={fontFamily}
-					isExpanded={isExpanded}
-					isFavorited={isFavorited}
-					onToggleExpanded={onToggleExpanded}
-					onToggleFavorite={onToggleFavorite}
-				/>
+			{...(isDragMode && {
+				draggable: true,
+				onDragStart,
+				onDragEnd,
+				onDragOver,
+				onDragLeave,
+				onDrop,
+			})}
+		>
+			<FontCard
+				fontFamily={fontFamily}
+				isExpanded={isExpanded}
+				isFavorited={isFavorited}
+				onToggleExpanded={onToggleExpanded}
+				onToggleFavorite={onToggleFavorite}
+			/>
 		</motion.li>
 	)
 }

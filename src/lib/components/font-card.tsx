@@ -5,8 +5,9 @@ import { useAtom } from 'jotai'
 import clsx from 'clsx'
 
 // Components
-import { StarFilledIcon, StarIcon } from '@radix-ui/react-icons'
+import { StarFilledIcon, StarIcon, ChevronDownIcon } from '@radix-ui/react-icons'
 import { IconButton } from '@radix-ui/themes'
+import { Accordion } from 'radix-ui'
 
 // State
 import { previewAtom } from '@/lib/state/fonts'
@@ -45,17 +46,31 @@ function PreviewText({ style }: { style?: Font }) {
 }
 
 function FontPreview({ fontFamily, isExpanded }: FontPreviewProps) {
+	// Always show regular style, then expanded styles if expanded
+	const regularStyle =
+		fontFamily.styles?.find(s => s.style.toLowerCase() === 'regular') || fontFamily.styles?.[0] || fontFamily
+
 	return (
 		<div className="flex flex-col gap-2 overflow-y-auto">
-			{isExpanded && fontFamily.styles.length > 1 ? (
-				fontFamily.styles.map((style: any, styleIndex: number) => (
-					<div key={`${style.fullName}-${styleIndex}`} className="flex flex-col">
-						<span className="font-sans text-xs text-neutral-500 mb-1">{style.style}</span>
-						<PreviewText style={style} />
-					</div>
-				))
-			) : (
-				<PreviewText />
+			{/* Always show regular/first style */}
+			<PreviewText style={regularStyle} />
+
+			{/* Show all styles when expanded */}
+			{isExpanded && fontFamily.styles && fontFamily.styles.length > 1 && (
+				<motion.div
+					layout
+					className="flex flex-col gap-2 pt-2 border-t border-neutral-200"
+					initial={{ opacity: 0, height: 0 }}
+					animate={{ opacity: 1, height: 'auto' }}
+					exit={{ opacity: 0, height: 0 }}
+				>
+					{fontFamily.styles.map((style: any, styleIndex: number) => (
+						<div key={`${style.fullName}-${styleIndex}`} className="flex flex-col">
+							<span className="font-sans text-xs text-neutral-500 mb-1">{style.style}</span>
+							<PreviewText style={style} />
+						</div>
+					))}
+				</motion.div>
 			)}
 		</div>
 	)
@@ -68,18 +83,36 @@ export default function FontCard({
 	onToggleExpanded,
 	onToggleFavorite,
 }: FontCardProps) {
+	const regularStyle =
+		fontFamily.styles?.find(s => s.style.toLowerCase() === 'regular') || fontFamily.styles?.[0] || fontFamily
+
 	return (
 		<div
-			className="rounded-2xl p-4 bg-neutral-100 grid size-full gap-4 overflow-hidden cursor-pointer"
+			className="rounded-2xl p-4 bg-neutral-100 grid size-full gap-4 overflow-hidden"
 			style={{ fontFamily: fontFamily.family, contentVisibility: 'auto' }}
-			onClick={() => fontFamily.styles.length > 1 && onToggleExpanded()}
 		>
 			<div className="flex items-start w-full gap-3 justify-between">
-				<div className="flex flex-col gap-1 w-full justify-between">
-					<span className="font-sans text-neutral-700 font-medium">{fontFamily.family}</span>
-					{fontFamily.styles.length > 1 && (
-						<span className="font-sans text-xs text-neutral-500">{fontFamily.styles.length} styles</span>
-					)}
+				<div className="flex items-center gap-2 w-full">
+					<div className="flex items-center gap-2">
+						{fontFamily.styles && fontFamily.styles.length > 1 && (
+							<IconButton 
+								variant="ghost" 
+								color="gray" 
+								className="size-8 flex-shrink-0"
+								onClick={onToggleExpanded}
+							>
+								<ChevronDownIcon className={`size-4 transition-transform duration-200 ${isExpanded ? 'rotate-180' : ''}`} />
+							</IconButton>
+						)}
+						<div className="flex flex-col gap-1">
+							<span className="font-sans text-neutral-700 font-medium">{fontFamily.family}</span>
+							{fontFamily.styles && fontFamily.styles.length > 1 && (
+								<span className="font-sans text-xs text-neutral-500">
+									{fontFamily.styles.length} styles
+								</span>
+							)}
+						</div>
+					</div>
 				</div>
 
 				<IconButton
@@ -107,7 +140,20 @@ export default function FontCard({
 				</IconButton>
 			</div>
 
-			<FontPreview fontFamily={fontFamily} isExpanded={isExpanded} />
+			{/* Always show regular style */}
+			<PreviewText style={regularStyle} />
+
+			{/* Show all styles when expanded */}
+			{isExpanded && fontFamily.styles && fontFamily.styles.length > 1 && (
+				<div className="flex flex-col gap-2 border-t border-neutral-200 pt-2">
+					{fontFamily.styles.map((style: any, styleIndex: number) => (
+						<div key={`${style.fullName}-${styleIndex}`} className="flex flex-col">
+							<span className="font-sans text-xs text-neutral-500 mb-1">{style.style}</span>
+							<PreviewText style={style} />
+						</div>
+					))}
+				</div>
+			)}
 		</div>
 	)
 }

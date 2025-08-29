@@ -28,7 +28,7 @@ export default function FontControls({ view, onViewChange }: FontControlsProps) 
 			</SegmentedControl.Root>
 			<TextField.Root
 				value={preview.text}
-				onChange={e => setPreview({...preview, text: e.target.value})}
+				onChange={e => setPreview({ ...preview, text: e.target.value })}
 				placeholder="The quick brown fox jumps over the lazy dog"
 			/>
 		</form>
