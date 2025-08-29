@@ -97,8 +97,14 @@ export default function FontList() {
 						)
 					})
 				) : (
-					<div className="col-span-full grid place-items-center p-4 bg-card rounded-2xl">
-						<Button className="mx-auto" onClick={loadFonts} loading={status === 'loading'}>
+					<div className="col-span-full grid place-items-center p-4 py-12 aspect-video bg-card rounded-2xl place-content-center gap-5">
+						<div className="grid gap-2 max-w-sm text-balance text-center">
+							<h1 className="font-medium">Font Book</h1>
+							<p className="text-neutral-600">
+								This is a simple system font viewed built in assignment for Paper.
+							</p>
+						</div>
+						<Button className="mx-auto mt-4" onClick={loadFonts} loading={status === 'loading'}>
 							Load fonts
 						</Button>
 					</div>
