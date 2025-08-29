@@ -4,17 +4,19 @@
 import { useAtom } from 'jotai'
 
 // Components
-import { TextField, SegmentedControl } from '@radix-ui/themes'
+import { TextField, SegmentedControl, Slider } from '@radix-ui/themes'
 
 // State
-import { previewAtom, viewAtom } from '@/lib/state/fonts'
+import { fontsAtom, previewAtom, viewAtom } from '@/lib/state/fonts'
+import { FontSizeIcon } from '@radix-ui/react-icons'
 
 export default function FontControls() {
 	const [preview, setPreview] = useAtom(previewAtom)
 	const [, setView] = useAtom(viewAtom)
+	const [fonts] = useAtom(fontsAtom)
 	return (
-		<form className="mb-6 container mx-auto z-50 grid gap-4 grid-cols-[1fr_2fr_1fr] items-center max-w-3xl sticky top-2 bg-white/85 shadow-lg shadow-neutral-400/20 backdrop-blur-md py-4 px-6 rounded-full">
-			<SegmentedControl.Root defaultValue="fonts">
+		<form className="flex justify-between items-center w-full gap-4">
+			<SegmentedControl.Root defaultValue="fonts" disabled={fonts.length === 0}>
 				<SegmentedControl.Item value="fonts" onClick={() => setView('all')}>
 					All
 				</SegmentedControl.Item>
@@ -22,11 +24,29 @@ export default function FontControls() {
 					Favorites
 				</SegmentedControl.Item>
 			</SegmentedControl.Root>
-			<TextField.Root
-				value={preview.text}
-				onChange={e => setPreview({ ...preview, text: e.target.value })}
-				placeholder="The quick brown fox jumps over the lazy dog"
-			/>
+
+			<div className="flex w-full max-w-sm grow gap-4 items-center">
+				<FontSizeIcon />
+				<Slider
+					disabled={fonts.length === 0}
+					className="max-w-24"
+					onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
+						setPreview({ ...preview, size: +event.target.value })
+					}
+					defaultValue={[preview.size]}
+					min={1}
+					step={0.01}
+					max={5}
+				/>
+
+				<TextField.Root
+					disabled={fonts.length === 0}
+					className="grow"
+					value={preview.text}
+					onChange={e => setPreview({ ...preview, text: e.target.value })}
+					placeholder="Enter preview text..."
+				/>
+			</div>
 		</form>
 	)
 }

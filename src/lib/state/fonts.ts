@@ -41,6 +41,6 @@ export const sortedFavoritesAtom = atom<GroupedFont[]>(get => {
 export const favoritesAtom = atomWithStorage<string[]>('favorites', [])
 
 export const previewAtom = atom<{ text: string; size: number }>({
-	text: 'The quick brown fox jumps over the lazy dog',
+	text: '',
 	size: 2.5,
 })

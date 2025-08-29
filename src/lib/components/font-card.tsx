@@ -5,9 +5,8 @@ import { useAtom } from 'jotai'
 import clsx from 'clsx'
 
 // Components
-import { StarFilledIcon, StarIcon, ChevronDownIcon } from '@radix-ui/react-icons'
+import { StarFilledIcon, StarIcon, ChevronRightIcon } from '@radix-ui/react-icons'
 import { IconButton } from '@radix-ui/themes'
-import { motion } from 'motion/react'
 
 // State
 import { previewAtom } from '@/lib/state/fonts'
@@ -33,9 +32,9 @@ function PreviewText({ style }: { style?: Font }) {
 					fontWeight: style.style.toLowerCase().includes('bold') ? 'bold' : 'normal',
 				}),
 			}}
-			className="leading-[1.25em] truncate"
+			className="leading-[1.25em] truncate max-w-full transition-all duration-100 ease-out"
 		>
-			{preview.text}
+			{preview.text || style?.family}
 		</span>
 	)
 }
@@ -52,26 +51,28 @@ export default function FontCard({
 
 	return (
 		<div
-			className="rounded-2xl p-4 bg-neutral-100 grid size-full gap-4 overflow-hidden"
+			className="rounded-2xl bg-card grid size-full overflow-clip max-w-full"
 			style={{ fontFamily: fontFamily.family, contentVisibility: 'auto' }}
 		>
-			<div className="flex items-start w-full gap-3 justify-between">
+			<div className="flex items-start w-full gap-3 justify-between sticky top-0 p-4 left-0 bg-card">
 				<div className="flex items-center gap-2 w-full">
-					<div className="flex items-center gap-2">
+					<div className="flex items-start gap-2">
 						{fontFamily.styles && fontFamily.styles.length > 1 && (
 							<IconButton
 								variant="ghost"
 								color="gray"
-								className="size-8 flex-shrink-0"
+								className="flex-shrink-0 relative block"
 								onClick={onToggleExpanded}
 							>
-								<ChevronDownIcon
-									className={`size-4 transition-transform duration-200 ${isExpanded ? 'rotate-180' : ''}`}
+								<ChevronRightIcon
+									className={`size-full transition-transform duration-100 ${isExpanded ? 'rotate-90' : ''}`}
 								/>
 							</IconButton>
 						)}
 						<div className="flex flex-col gap-1">
-							<span className="font-sans text-neutral-700 font-medium">{fontFamily.family}</span>
+							<span className="font-sans text-neutral-700 leading-4 font-medium">
+								{fontFamily.family}
+							</span>
 							{fontFamily.styles && fontFamily.styles.length > 1 && (
 								<span className="font-sans text-xs text-neutral-500">
 									{fontFamily.styles.length} styles
@@ -106,24 +107,20 @@ export default function FontCard({
 				</IconButton>
 			</div>
 
-			<PreviewText style={regularStyle} />
+			<div className="p-4 truncate max-w-3xl">
+				<PreviewText style={regularStyle} />
 
-			{isExpanded && fontFamily.styles && fontFamily.styles.length > 1 && (
-				<motion.div
-					layout
-					className="flex flex-col gap-2 pt-2 border-t border-neutral-200"
-					initial={{ opacity: 0, height: 0 }}
-					animate={{ opacity: 1, height: 'auto' }}
-					exit={{ opacity: 0, height: 0 }}
-				>
-					{fontFamily.styles.map((style: Font, styleIndex: number) => (
-						<div key={`${style.fullName}-${styleIndex}`} className="flex flex-col">
-							<span className="font-sans text-xs text-neutral-500 mb-1">{style.style}</span>
-							<PreviewText style={style} />
-						</div>
-					))}
-				</motion.div>
-			)}
+				{isExpanded && fontFamily.styles && fontFamily.styles.length > 1 && (
+					<div className="flex flex-col gap-2 pt-2 border-t border-neutral-200">
+						{fontFamily.styles.map((style: Font, styleIndex: number) => (
+							<div key={`${style.fullName}-${styleIndex}`} className="flex flex-col">
+								<span className="font-sans text-xs text-neutral-500 mb-1">{style.style}</span>
+								<PreviewText style={style} />
+							</div>
+						))}
+					</div>
+				)}
+			</div>
 		</div>
 	)
 }

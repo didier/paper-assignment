@@ -17,6 +17,7 @@ import {
 import { getUserFonts } from '../utils'
 import { useDragAndDrop } from '../hooks/use-drag-and-drop'
 import { useState } from 'react'
+import clsx from 'clsx'
 
 export default function FontList() {
 	const [fonts, setFonts] = useAtom(fontsAtom)
@@ -63,27 +64,18 @@ export default function FontList() {
 	const displayFonts = view === 'favorites' ? dragAndDrop.displayFavorites : groupedFonts
 
 	return (
-		<div>
+		<div className="max-w-3xl mx-auto px-4 grid gap-4 py-8">
 			<FontControls />
-			<motion.ul className="grid gap-3 max-w-5xl mx-auto">
+			<motion.ul className="grid gap-3 w-full max-w-full">
 				{fonts.length ? (
 					displayFonts.map((fontFamily, index) => {
 						const isDragMode = view === 'favorites'
 						const isDragging = dragAndDrop.draggedItem === fontFamily.family
 
 						return (
-							<motion.li
+							<li
 								key={`${fontFamily.family}-${index}`}
-								layout
-								className={`grid group ${isDragMode ? 'cursor-move' : ''} ${isDragging ? 'opacity-30' : ''}`}
-								initial={{ opacity: 0, y: 20 }}
-								animate={{
-									opacity: isDragging ? 0.3 : 1,
-									y: 0,
-									transition: {
-										delay: index * 0.015,
-									},
-								}}
+								className={clsx('grid group', isDragMode && 'cursor-move', isDragging && 'opacity-30')}
 								{...(isDragMode && {
 									draggable: true,
 									onDragStart: () => dragAndDrop.handleDragStart(fontFamily.family),
@@ -101,11 +93,11 @@ export default function FontList() {
 									onToggleExpanded={() => toggleExpanded(fontFamily.family)}
 									onToggleFavorite={() => toggleFavorite(fontFamily.family)}
 								/>
-							</motion.li>
+							</li>
 						)
 					})
 				) : (
-					<div className="col-span-full grid place-items-center">
+					<div className="col-span-full grid place-items-center p-4 bg-card rounded-2xl">
 						<Button className="mx-auto" onClick={loadFonts} loading={status === 'loading'}>
 							Load fonts
 						</Button>
