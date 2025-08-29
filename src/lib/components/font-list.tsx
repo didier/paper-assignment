@@ -75,20 +75,46 @@ export default function FontList() {
 						return (
 							<motion.li
 								initial={{ opacity: 0, y: '1rem' }}
-								animate={{ opacity: 1, y: 0, transition: { delay: 0.1 + index * 0.025 } }}
+								animate={{
+									opacity: isDragging ? 0.3 : 1,
+									y: 0,
+									transition: {
+										delay: 0.1 + index * 0.025,
+										duration: 0.2,
+										ease: 'easeOut'
+									}
+								}}
 								exit={{ opacity: 0, y: '1rem', scale: 0.75 }}
+								layout
+								layoutId={fontFamily.family}
 								key={`${fontFamily.family}-${index}`}
-								className={clsx('grid group', isDragMode && 'cursor-move', isDragging && 'opacity-30')}
+								className={clsx(
+									'grid group relative transition-all duration-200 ease-out',
+									isDragMode && 'cursor-grab active:cursor-grabbing',
+									isDragging && 'z-50'
+								)}
 								{...(isDragMode && {
 									draggable: true,
-									onDragStart: () => dragAndDrop.handleDragStart(fontFamily.family),
+									onDragStart: (e: React.DragEvent) => {
+										e.dataTransfer.effectAllowed = 'move'
+										e.dataTransfer.setData('text/plain', fontFamily.family)
+										dragAndDrop.handleDragStart(fontFamily.family)
+									},
 									onDragEnd: dragAndDrop.handleDragEnd,
-									onDragOver: (e: React.DragEvent) =>
-										dragAndDrop.handleDragOver(e, fontFamily.family),
+									onDragOver: (e: React.DragEvent) => {
+										e.preventDefault()
+										e.dataTransfer.dropEffect = 'move'
+										dragAndDrop.handleDragOver(e, fontFamily.family)
+									},
 									onDragLeave: dragAndDrop.handleDragLeave,
 									onDrop: dragAndDrop.handleDrop,
 								})}
 							>
+								{/* Drop indicator line */}
+								{dragAndDrop.dragOverItem === fontFamily.family && !isDragging && (
+									<div className="absolute -top-1 left-0 right-0 h-0.5 bg-teal-500 rounded-full shadow-lg shadow-teal-500/50 z-10" />
+								)}
+								
 								<FontCard
 									fontFamily={fontFamily}
 									isExpanded={expandedFonts.has(fontFamily.family)}

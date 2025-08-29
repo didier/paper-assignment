@@ -29,15 +29,20 @@ export function useDragAndDrop({ favorites, setFavorites, sortedFavorites }: Use
 
 	function handleDragOver(e: React.DragEvent, family: string) {
 		e.preventDefault()
-		if (draggedOverItem.current !== family) {
+		e.dataTransfer.dropEffect = 'move'
+		
+		// Only update if different from current and not dragging over self
+		if (draggedOverItem.current !== family && draggedItem !== family) {
 			draggedOverItem.current = family
 			setDragOverItem(family)
 		}
 	}
 
 	function handleDragLeave(e: React.DragEvent) {
+		// Clear drag over state when leaving the drop zone
 		if (!e.currentTarget.contains(e.relatedTarget as Node)) {
 			setDragOverItem(null)
+			draggedOverItem.current = null
 		}
 	}
 
