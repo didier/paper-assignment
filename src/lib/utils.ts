@@ -1,41 +1,14 @@
-export type Font = {
+export interface BrowserFont {
 	family: string
 	fullName: string
 	style: string
-	isUserInstalled: boolean
-	favorited?: boolean
+	postscriptName: string
+	blob(): Promise<Blob>
 }
 
-async function isSystemFont(font: any): Promise<boolean> {
-	try {
-		// Get font blob to analyze actual font data
-		const blob = await font.blob()
-		const fileSize = blob.size
-
-		// Aggressive system font detection: assume most fonts are system fonts
-		// Only mark as user-installed if there are very strong indicators
-
-		// User-installed fonts are typically:
-		// 1. Very large (complex designer fonts with many features)
-		// 2. Or very small (incomplete/specialty fonts)
-
-		if (fileSize > 3000000) {
-			// Very large fonts are likely complex user fonts
-			return false
-		}
-
-		if (fileSize < 5000) {
-			// Very small fonts might be specialty user fonts
-			return false
-		}
-
-		// Everything else is assumed to be a system font
-		// This includes Apple Color Emoji and other built-in fonts
-		return true
-	} catch (error) {
-		// If we can't analyze the font, assume it's a system font
-		return true
-	}
+export type Font = BrowserFont & {
+	favorited?: boolean
+	styles?: Font[]
 }
 
 export async function getUserFonts(): Promise<Font[]> {
@@ -44,14 +17,15 @@ export async function getUserFonts(): Promise<Font[]> {
 		if ('queryLocalFonts' in window) {
 			const fonts = await (window as Window).queryLocalFonts()
 
-			// Process fonts concurrently to detect system vs user-installed
-			const fontPromises = fonts.map(async (font: any) => {
-				const isSystem = await isSystemFont(font)
+			// Return fonts with browser font properties
+			const fontPromises = fonts.map(async (font: BrowserFont) => {
 				return {
 					family: font.family,
 					fullName: font.fullName,
 					style: font.style,
-					isUserInstalled: !isSystem,
+					postscriptName: font.postscriptName,
+					blob: font.blob.bind(font),
+					favorited: false,
 				}
 			})
 

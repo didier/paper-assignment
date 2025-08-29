@@ -6,3 +6,22 @@
 	--ease-in: cubic-bezier(0.9, 0.03, 0.69, 0.22);
 	--ease-in-out: cubic-bezier(0.77, 0, 0.18, 1);
 }
+
+/* Debug util */
+@layer components {
+	.debug {
+		@apply ring-1 ring-red-500 ring-inset;
+		.debug {
+			@apply ring-1 ring-blue-500 ring-inset;
+			.debug {
+				@apply ring-1 ring-green-500 ring-inset;
+				.debug {
+					@apply ring-1 ring-yellow-500 ring-inset;
+					.debug {
+						@apply ring-1 ring-purple-500 ring-inset;
+					}
+				}
+			}
+		}
+	}
+}

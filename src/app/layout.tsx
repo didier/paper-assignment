@@ -41,23 +41,8 @@ export default function RootLayout({
 	return (
 		<html lang="en">
 			<body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
-				<Theme accentColor="cyan" grayColor="sage" radius="large">
+				<Theme accentColor="cyan" grayColor="gray" radius="large">
 					<Providers>
-						{/*<nav className="container mx-auto grid place-items-center place-content-center py-8 px-8">
-							<ul className="grid grid-flow-col gap-3">
-								{views.map(view => (
-									<li key={view.href}>
-										<a
-											href={view.href}
-											className="px-4 py-1.5 font-medium bg-neutral-100 hover:bg-neutral-200 transition ease-out duration-300 rounded-full"
-										>
-											{view.label}
-										</a>
-									</li>
-								))}
-							</ul>
-						</nav>*/}
-
 						<main>{children}</main>
 					</Providers>
 				</Theme>

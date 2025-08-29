@@ -3,112 +3,179 @@
 // Utils
 import { useAtom } from 'jotai'
 import { motion } from 'motion/react'
-import clsx from 'clsx'
 
 // Components
-import { StarFilledIcon, StarIcon } from '@radix-ui/react-icons'
-import { Button, IconButton, TextField, SegmentedControl } from '@radix-ui/themes'
+import { Button } from '@radix-ui/themes'
+import FontControls from './font-controls'
+import DraggableFontItem from './draggable-font-item'
 
 // State
-import { fontsAtom } from '@/lib/state/fonts'
-import { getUserFonts } from '../utils'
-import { useState } from 'react'
+import { fontsAtom, favoritesAtom } from '@/lib/state/fonts'
+import { Font, getUserFonts } from '../utils'
+import { useState, useMemo, useRef } from 'react'
 
 export default function FontList() {
-	const remSize = 2.5
-
 	const [fonts, setFonts] = useAtom(fontsAtom)
-	const [preview, setPreview] = useState('The quick brown fox jumps over the lazy dog')
+	const [favorites, setFavorites] = useAtom(favoritesAtom)
 	const [status, setStatus] = useState<'idle' | 'loading' | 'error'>('idle')
-	const [view, setView] = useState<'fonts' | 'favorites'>('fonts')
+	const [view, setView] = useState<'all' | 'favorites'>('all')
+	const [expandedFonts, setExpandedFonts] = useState<Set<string>>(new Set())
+	const [draggedItem, setDraggedItem] = useState<string | null>(null)
+	const [dragOverItem, setDragOverItem] = useState<string | null>(null)
+	const draggedOverItem = useRef<string | null>(null)
+	const dragStartOrder = useRef<Font[]>([])
+
+	function toggleExpanded(family: string) {
+		setExpandedFonts(prev => {
+			const newSet = new Set(prev)
+			if (newSet.has(family)) {
+				newSet.delete(family)
+			} else {
+				newSet.add(family)
+			}
+			return newSet
+		})
+	}
+
+	function toggleFavorite(family: string) {
+		if (favorites.includes(family)) {
+			// Remove from favorites
+			setFavorites(prev => prev.filter(f => f !== family))
+		} else {
+			// Add to favorites at the end
+			setFavorites(prev => [...prev, family])
+		}
+	}
+
+	// Memoize font grouping for performance
+	const groupedFonts = useMemo(() => {
+		const grouped = new Map()
+		fonts.forEach(font => {
+			const existing = grouped.get(font.family)
+			const isFavorited = favorites.includes(font.family)
+			if (!existing) {
+				grouped.set(font.family, { ...font, styles: [font], favorited: isFavorited })
+			} else {
+				existing.styles.push(font)
+				existing.favorited = isFavorited
+			}
+		})
+		return Array.from(grouped.values())
+	}, [fonts, favorites])
+
+	// Get sorted favorites based on favorites array order
+	const sortedFavorites = useMemo(() => {
+		return favorites
+			.map(familyName => groupedFonts.find(f => f.family === familyName))
+			.filter(Boolean)
+	}, [groupedFonts, favorites])
+
+	// Use a stable display order during drag
+	const displayFavorites = useMemo(() => {
+		// If we're dragging, use the frozen order from drag start
+		if (draggedItem && dragStartOrder.current.length > 0) {
+			return dragStartOrder.current
+		}
+		return sortedFavorites
+	}, [sortedFavorites, draggedItem])
+
+	// Drag handlers
+	function handleDragStart(family: string) {
+		setDraggedItem(family)
+		// Freeze the current order to prevent snapping during drag
+		dragStartOrder.current = [...sortedFavorites]
+	}
+
+	function handleDragEnd() {
+		setDraggedItem(null)
+		setDragOverItem(null)
+		draggedOverItem.current = null
+		dragStartOrder.current = [] // Clear frozen order
+	}
+
+	function handleDragOver(e: React.DragEvent, family: string) {
+		e.preventDefault()
+		if (draggedOverItem.current !== family) {
+			draggedOverItem.current = family
+			setDragOverItem(family)
+		}
+	}
+
+	function handleDragLeave(e: React.DragEvent) {
+		// Only clear drag over if we're actually leaving the element
+		if (!e.currentTarget.contains(e.relatedTarget as Node)) {
+			setDragOverItem(null)
+		}
+	}
+
+	function handleDrop(e: React.DragEvent) {
+		e.preventDefault()
+		e.stopPropagation()
+
+		if (!draggedItem || !draggedOverItem.current || draggedItem === draggedOverItem.current) {
+			setDraggedItem(null)
+			setDragOverItem(null)
+			draggedOverItem.current = null
+			return
+		}
+
+		const draggedIndex = favorites.indexOf(draggedItem)
+		const targetIndex = favorites.indexOf(draggedOverItem.current)
+
+		if (draggedIndex === -1 || targetIndex === -1) {
+			setDraggedItem(null)
+			setDragOverItem(null)
+			draggedOverItem.current = null
+			return
+		}
+
+		// Reorder the favorites array
+		const newFavorites = [...favorites]
+		newFavorites.splice(draggedIndex, 1)
+		const insertIndex = targetIndex > draggedIndex ? targetIndex - 1 : targetIndex
+		newFavorites.splice(insertIndex, 0, draggedItem)
+
+		setFavorites(newFavorites)
+		setDraggedItem(null)
+		setDragOverItem(null)
+		draggedOverItem.current = null
+		dragStartOrder.current = [] // Clear frozen order
+	}
 
 	return (
 		<div>
-			<form className="mb-6 container mx-auto z-50 grid gap-4 grid-cols-[1fr_2fr_1fr] items-center max-w-3xl sticky top-2 bg-white/85 shadow-lg shadow-neutral-400/20 backdrop-blur-md py-4 px-6 rounded-full">
-				<SegmentedControl.Root defaultValue="fonts">
-					<SegmentedControl.Item value="fonts" onClick={() => setView('fonts')}>
-						Fonts
-					</SegmentedControl.Item>
-					<SegmentedControl.Item value="favorites" onClick={() => setView('favorites')}>
-						Favorites
-					</SegmentedControl.Item>
-				</SegmentedControl.Root>
-				<TextField.Root
-					value={preview}
-					onChange={e => {
-						setPreview(e.target.value)
-					}}
-					placeholder="The quick brown fox jumps over the lazy dog"
-				/>
-			</form>
-			<motion.ul className="grid gap-3 container mx-auto grid-cols-4 ">
+			<FontControls view={view} onViewChange={setView} />
+			<motion.ul className="grid gap-3 max-w-5xl mx-auto">
 				{fonts.length ? (
-					Array.from(
-						new Map(
-							fonts
-								.filter(font => (view === 'favorites' ? font.favorited : true))
-								.map(font => [font.family, font])
-						).values()
-					)
-						// .sort((a, b) => (b.favorited ? 1 : 0) - (a.favorited ? 1 : 0))
-						.map((font, index) => (
-							<motion.li
-								className="grid group "
-								key={`${font.family}-${index}`}
-								initial={{ opacity: 0, y: 20 }}
-								animate={{
-									opacity: 1,
-									y: 0,
-									transition: {
-										delay: index * 0.015,
-									},
-								}}
-								exit={{ opacity: 0, y: -20 }}
-							>
-								<div
-									className="rounded-2xl p-4 bg-neutral-100 aspect-square grid size-full place-content-between items-between"
-									style={{ fontFamily: font.family, contentVisibility: 'auto' }}
-								>
-									<div className="flex items-center gap-3 justify-between">
-										<span className="font-sans text-neutral-700 font-medium">{font.family}</span>
-										<IconButton
-											variant="ghost"
-											className="size-8"
-											onClick={() => {
-												setFonts(prevFonts =>
-													prevFonts.map(f =>
-														f.family === font.family ? { ...f, favorited: !f.favorited } : f
-													)
-												)
-											}}
-										>
-											{font?.favorited ? (
-												<StarFilledIcon
-													className={clsx(
-														'size-6 group-hover:opacity-100 transition duration-300 ease-out group-hover:duration-150 fill-current text-yellow-500 opacity-100'
-													)}
-												/>
-											) : (
-												<StarIcon
-													className={clsx(
-														'size-6 group-hover:opacity-100 transition duration-300 ease-out opacity-0 group-hover:duration-150 fill-current text-gray-400'
-													)}
-												/>
-											)}
-										</IconButton>
-									</div>
-									<span style={{ fontSize: `${remSize}rem` }} className="leading-[1.25em]">
-										{preview}
-									</span>
-								</div>
-							</motion.li>
-						))
+					(view === 'favorites' ? displayFavorites : groupedFonts).map((fontFamily, index) => {
+						return (
+							<DraggableFontItem
+								key={`${fontFamily.family}-${index}`}
+								fontFamily={fontFamily}
+								index={index}
+								isExpanded={expandedFonts.has(fontFamily.family)}
+								isFavorited={fontFamily.favorited}
+								onToggleExpanded={() => toggleExpanded(fontFamily.family)}
+								onToggleFavorite={() => toggleFavorite(fontFamily.family)}
+								isDragging={draggedItem === fontFamily.family}
+								isDragMode={view === 'favorites'}
+								onDragStart={() => handleDragStart(fontFamily.family)}
+								onDragEnd={() => handleDragEnd()}
+								onDragOver={(e: React.DragEvent) => handleDragOver(e, fontFamily.family)}
+								onDragLeave={(e: React.DragEvent) => handleDragLeave(e)}
+								onDrop={(e: React.DragEvent) => handleDrop(e)}
+							/>
+						)
+					})
 				) : (
 					<div className="col-span-full grid place-items-center">
 						<Button
 							className="mx-auto"
 							onClick={() => {
-								getUserFonts().then(setFonts)
+								getUserFonts().then(fonts => {
+									console.log('Loaded fonts sample:', JSON.stringify(fonts.slice(0, 3), null, 2))
+									setFonts(fonts)
+								})
 								setStatus('loading')
 							}}
 							loading={status === 'loading'}
