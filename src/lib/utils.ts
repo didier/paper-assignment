@@ -12,7 +12,7 @@ declare global {
 	}
 }
 
-export type Font = BrowserFont & {
+export interface Font extends BrowserFont {
 	favorited?: boolean
 	styles?: Font[]
 }
@@ -32,6 +32,7 @@ export async function getUserFonts(): Promise<Font[]> {
 					postscriptName: font.postscriptName,
 					blob: font.blob.bind(font),
 					favorited: false,
+					styles: [],
 				}
 			})
 
