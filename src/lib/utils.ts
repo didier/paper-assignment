@@ -6,6 +6,12 @@ export interface BrowserFont {
 	blob(): Promise<Blob>
 }
 
+declare global {
+	interface Window {
+		queryLocalFonts(): Promise<BrowserFont[]>
+	}
+}
+
 export type Font = BrowserFont & {
 	favorited?: boolean
 	styles?: Font[]
@@ -15,7 +21,7 @@ export async function getUserFonts(): Promise<Font[]> {
 	try {
 		// Check if the browser supports the Local Font Access API
 		if ('queryLocalFonts' in window) {
-			const fonts = await (window as Window).queryLocalFonts()
+			const fonts = await window.queryLocalFonts()
 
 			// Return fonts with browser font properties
 			const fontPromises = fonts.map(async (font: BrowserFont) => {

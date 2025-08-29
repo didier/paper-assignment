@@ -7,22 +7,18 @@ import { useAtom } from 'jotai'
 import { TextField, SegmentedControl } from '@radix-ui/themes'
 
 // State
-import { previewAtom } from '@/lib/state/fonts'
+import { previewAtom, viewAtom } from '@/lib/state/fonts'
 
-interface FontControlsProps {
-	view: 'all' | 'favorites'
-	onViewChange: (view: 'all' | 'favorites') => void
-}
-
-export default function FontControls({ view, onViewChange }: FontControlsProps) {
+export default function FontControls() {
 	const [preview, setPreview] = useAtom(previewAtom)
+	const [, setView] = useAtom(viewAtom)
 	return (
 		<form className="mb-6 container mx-auto z-50 grid gap-4 grid-cols-[1fr_2fr_1fr] items-center max-w-3xl sticky top-2 bg-white/85 shadow-lg shadow-neutral-400/20 backdrop-blur-md py-4 px-6 rounded-full">
 			<SegmentedControl.Root defaultValue="fonts">
-				<SegmentedControl.Item value="fonts" onClick={() => onViewChange('all')}>
+				<SegmentedControl.Item value="fonts" onClick={() => setView('all')}>
 					All
 				</SegmentedControl.Item>
-				<SegmentedControl.Item value="favorites" onClick={() => onViewChange('favorites')}>
+				<SegmentedControl.Item value="favorites" onClick={() => setView('favorites')}>
 					Favorites
 				</SegmentedControl.Item>
 			</SegmentedControl.Root>

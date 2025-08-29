@@ -1,14 +1,17 @@
 'use client'
-import { fontsAtom } from '@/lib/state/fonts'
+
 import { useAtom } from 'jotai'
-import Image from 'next/image'
+import { useEffect } from 'react'
+import FontList from '@/lib/components/font-list'
+import { viewAtom } from '@/lib/state/fonts'
 
 export default function Favourites() {
-	const [fonts, setFonts] = useAtom(fontsAtom)
-	return (
-		<>
-			<h1>Welcome to Paper Assignment</h1>
-			<p>Start your journey with us!</p>
-		</>
-	)
+	const [, setView] = useAtom(viewAtom)
+
+	useEffect(() => {
+		setView('favorites')
+		return () => setView('all')
+	}, [setView])
+
+	return <FontList />
 }
