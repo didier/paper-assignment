@@ -100,7 +100,7 @@ export default function FontList() {
 									{dragAndDrop.dragOverItem === fontFamily.family && !isDragging && (
 										<div className="absolute -top-1 left-0 right-0 h-0.5 bg-teal-500 rounded-full shadow-lg shadow-teal-500/50 z-10" />
 									)}
-									
+
 									<FontCard
 										fontFamily={fontFamily}
 										isExpanded={expandedFonts.has(fontFamily.family)}

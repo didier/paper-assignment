@@ -23,7 +23,7 @@ interface FontCardProps {
 
 function PreviewText({ style }: { style?: Font }) {
 	const [preview] = useAtom(previewAtom)
-	
+
 	return (
 		<span
 			style={{
@@ -53,31 +53,33 @@ export default function FontCard({
 		if (!fontFamily.styles || fontFamily.styles.length === 0) {
 			return fontFamily
 		}
-		
+
 		// Look for exact regular matches first
 		const exactRegular = fontFamily.styles.find(s => {
 			const style = s.style.toLowerCase()
 			return style === 'regular' || style === 'normal' || style === 'book' || style === 'roman'
 		})
 		if (exactRegular) return exactRegular
-		
+
 		// Look for 400 weight
 		const weight400 = fontFamily.styles.find(s => s.style.toLowerCase().includes('400'))
 		if (weight400) return weight400
-		
+
 		// Look for any non-italic, non-bold style
 		const normalStyle = fontFamily.styles.find(s => {
 			const style = s.style.toLowerCase()
-			return !style.includes('italic') && 
-				   !style.includes('oblique') &&
-				   !style.includes('bold') &&
-				   !style.includes('light') &&
-				   !style.includes('thin') &&
-				   !style.includes('heavy') &&
-				   !style.includes('black')
+			return (
+				!style.includes('italic') &&
+				!style.includes('oblique') &&
+				!style.includes('bold') &&
+				!style.includes('light') &&
+				!style.includes('thin') &&
+				!style.includes('heavy') &&
+				!style.includes('black')
+			)
 		})
 		if (normalStyle) return normalStyle
-		
+
 		// Fallback to first style or font itself
 		return fontFamily.styles[0] || fontFamily
 	})()
