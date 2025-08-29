@@ -47,14 +47,17 @@ export default function FontCard({
 	onToggleFavorite,
 }: FontCardProps) {
 	// Always prioritize regular weight for the default preview
-	const regularStyle = 
-		fontFamily.styles?.find(s => 
-			s.style.toLowerCase() === 'regular' || 
-			s.style.toLowerCase() === 'normal' ||
-			s.style.toLowerCase().includes('400')
-		) || 
-		fontFamily.styles?.find(s => !s.style.toLowerCase().includes('italic') && !s.style.toLowerCase().includes('oblique')) ||
-		fontFamily.styles?.[0] || 
+	const regularStyle =
+		fontFamily.styles?.find(
+			s =>
+				s.style.toLowerCase() === 'regular' ||
+				s.style.toLowerCase() === 'normal' ||
+				s.style.toLowerCase().includes('400')
+		) ||
+		fontFamily.styles?.find(
+			s => !s.style.toLowerCase().includes('italic') && !s.style.toLowerCase().includes('oblique')
+		) ||
+		fontFamily.styles?.[0] ||
 		fontFamily
 
 	return (

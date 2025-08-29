@@ -56,17 +56,17 @@ export const groupedFontsAtom = atom<GroupedFont[]>(get => {
 export const filteredFontsAtom = atom<GroupedFont[]>(get => {
 	const grouped = get(groupedFontsAtom)
 	const search = get(deferredSearchAtom).toLowerCase().trim()
-	
+
 	if (!search) {
 		return grouped
 	}
-	
-	return grouped.filter(font => 
-		font.family.toLowerCase().includes(search) ||
-		font.styles.some(style => 
-			style.style.toLowerCase().includes(search) ||
-			style.fullName.toLowerCase().includes(search)
-		)
+
+	return grouped.filter(
+		font =>
+			font.family.toLowerCase().includes(search) ||
+			font.styles.some(
+				style => style.style.toLowerCase().includes(search) || style.fullName.toLowerCase().includes(search)
+			)
 	)
 })
 
@@ -79,17 +79,17 @@ export const sortedFavoritesAtom = atom<GroupedFont[]>(get => {
 export const filteredFavoritesAtom = atom<GroupedFont[]>(get => {
 	const sortedFavorites = get(sortedFavoritesAtom)
 	const search = get(deferredSearchAtom).toLowerCase().trim()
-	
+
 	if (!search) {
 		return sortedFavorites
 	}
-	
-	return sortedFavorites.filter(font => 
-		font.family.toLowerCase().includes(search) ||
-		font.styles.some(style => 
-			style.style.toLowerCase().includes(search) ||
-			style.fullName.toLowerCase().includes(search)
-		)
+
+	return sortedFavorites.filter(
+		font =>
+			font.family.toLowerCase().includes(search) ||
+			font.styles.some(
+				style => style.style.toLowerCase().includes(search) || style.fullName.toLowerCase().includes(search)
+			)
 	)
 })
 

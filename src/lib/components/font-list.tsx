@@ -81,8 +81,8 @@ export default function FontList() {
 									transition: {
 										delay: 0.1 + index * 0.025,
 										duration: 0.2,
-										ease: 'easeOut'
-									}
+										ease: 'easeOut',
+									},
 								}}
 								exit={{ opacity: 0, y: '1rem', scale: 0.75 }}
 								layout
@@ -114,7 +114,7 @@ export default function FontList() {
 								{dragAndDrop.dragOverItem === fontFamily.family && !isDragging && (
 									<div className="absolute -top-1 left-0 right-0 h-0.5 bg-teal-500 rounded-full shadow-lg shadow-teal-500/50 z-10" />
 								)}
-								
+
 								<FontCard
 									fontFamily={fontFamily}
 									isExpanded={expandedFonts.has(fontFamily.family)}

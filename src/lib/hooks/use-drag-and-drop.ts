@@ -30,7 +30,7 @@ export function useDragAndDrop({ favorites, setFavorites, sortedFavorites }: Use
 	function handleDragOver(e: React.DragEvent, family: string) {
 		e.preventDefault()
 		e.dataTransfer.dropEffect = 'move'
-		
+
 		// Only update if different from current and not dragging over self
 		if (draggedOverItem.current !== family && draggedItem !== family) {
 			draggedOverItem.current = family

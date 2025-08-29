@@ -1,6 +1,5 @@
 # Paper Font Book
 
-
 ## Future ideas
 
 I have some ideas on how to make this much better in the future, such as:
