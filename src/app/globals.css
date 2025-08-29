@@ -1,26 +1,8 @@
-@import "tailwindcss";
+@import 'tailwindcss';
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
-
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+@theme {
+	/* Based on Quart easing curves */
+	--ease-out: cubic-bezier(0.17, 0.84, 0.44, 1);
+	--ease-in: cubic-bezier(0.9, 0.03, 0.69, 0.22);
+	--ease-in-out: cubic-bezier(0.77, 0, 0.18, 1);
 }
