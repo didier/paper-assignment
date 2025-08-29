@@ -98,7 +98,7 @@ export const favoritesAtom = atomWithStorage<string[]>('favorites', [])
 
 export const previewAtom = atom<{ text: string; size: number }>({
 	text: '',
-	size: 2.5,
+	size: 2,
 })
 
 export const searchAtom = atom<string>('')
