@@ -28,9 +28,17 @@ export default function RootLayout({
 	return (
 		<html lang="en">
 			<body className="antialiased">
-				<Theme accentColor="teal" grayColor="gray" radius="large">
+				<Theme accentColor="teal" grayColor="sand" radius="large">
 					<Providers>
 						<main>{children}</main>
+						<footer className="max-w-3xl mx-auto p-4 text-center text-neutral-400">
+							<a
+								href="https://didiercatz.com"
+								className="absolute bottom-4 left-1/2 -translate-x-1/2 block"
+							>
+								by Didier Catz
+							</a>
+						</footer>
 					</Providers>
 				</Theme>
 			</body>

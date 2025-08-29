@@ -11,8 +11,8 @@ import {
 	favoritesAtom,
 	viewAtom,
 	expandedFontsAtom,
-	groupedFontsAtom,
-	sortedFavoritesAtom,
+	filteredFontsAtom,
+	filteredFavoritesAtom,
 } from '@/lib/state/fonts'
 import { getUserFonts } from '../utils'
 import { useDragAndDrop } from '../hooks/use-drag-and-drop'
@@ -24,11 +24,11 @@ export default function FontList() {
 	const [favorites, setFavorites] = useAtom(favoritesAtom)
 	const [view] = useAtom(viewAtom)
 	const [expandedFonts, setExpandedFonts] = useAtom(expandedFontsAtom)
-	const [groupedFonts] = useAtom(groupedFontsAtom)
-	const [sortedFavorites] = useAtom(sortedFavoritesAtom)
+	const [filteredFonts] = useAtom(filteredFontsAtom)
+	const [filteredFavorites] = useAtom(filteredFavoritesAtom)
 	const [status, setStatus] = useState<'idle' | 'loading' | 'error'>('idle')
 
-	const dragAndDrop = useDragAndDrop({ favorites, setFavorites, sortedFavorites })
+	const dragAndDrop = useDragAndDrop({ favorites, setFavorites, sortedFavorites: filteredFavorites })
 
 	function toggleExpanded(family: string) {
 		setExpandedFonts(prev => {
@@ -61,7 +61,7 @@ export default function FontList() {
 		}
 	}
 
-	const displayFonts = view === 'favorites' ? dragAndDrop.displayFavorites : groupedFonts
+	const displayFonts = view === 'favorites' ? dragAndDrop.displayFavorites : filteredFonts
 
 	return (
 		<div className="max-w-3xl mx-auto px-4 grid gap-4 py-8">
@@ -73,7 +73,10 @@ export default function FontList() {
 						const isDragging = dragAndDrop.draggedItem === fontFamily.family
 
 						return (
-							<li
+							<motion.li
+								initial={{ opacity: 0, y: '1rem' }}
+								animate={{ opacity: 1, y: 0, transition: { delay: 0.1 + index * 0.025 } }}
+								exit={{ opacity: 0, y: '1rem', scale: 0.75 }}
 								key={`${fontFamily.family}-${index}`}
 								className={clsx('grid group', isDragMode && 'cursor-move', isDragging && 'opacity-30')}
 								{...(isDragMode && {
@@ -93,11 +96,11 @@ export default function FontList() {
 									onToggleExpanded={() => toggleExpanded(fontFamily.family)}
 									onToggleFavorite={() => toggleFavorite(fontFamily.family)}
 								/>
-							</li>
+							</motion.li>
 						)
 					})
 				) : (
-					<div className="col-span-full grid place-items-center p-4 py-12 aspect-video bg-card rounded-2xl place-content-center gap-5">
+					<motion.div className="col-span-full grid place-items-center p-4 py-12 aspect-video bg-card rounded-2xl place-content-center gap-5">
 						<div className="grid gap-2 max-w-sm text-balance text-center">
 							<h1 className="font-medium">Font Book</h1>
 							<p className="text-neutral-600">
@@ -107,7 +110,7 @@ export default function FontList() {
 						<Button className="mx-auto mt-4" onClick={loadFonts} loading={status === 'loading'}>
 							Load fonts
 						</Button>
-					</div>
+					</motion.div>
 				)}
 			</motion.ul>
 		</div>
